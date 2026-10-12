@@ -9,4 +9,3 @@ public class PlacementBackendApplication {
     public static void main(String[] args) {
         SpringApplication.run(PlacementBackendApplication.class, args);
     }
-}
