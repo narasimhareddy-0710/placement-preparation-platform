@@ -1,3 +1,4 @@
+
 package com.placement.placement_backend.controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,5 +12,10 @@ public class TestController {
     @GetMapping
     public String test() {
         return "Placement Preparation Platform Backend is working!";
+    }
+
+    @GetMapping("/protected")
+    public String protectedTest() {
+        return "JWT authentication test passed!";
     }
 }
