@@ -8,9 +8,9 @@ import com.placement.placement_backend.exception.EmailAlreadyExistsException;
 import com.placement.placement_backend.repository.StudentRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Locale;
+import java.util.UUID;
 
 @Service
 public class StudentService {
@@ -23,7 +23,6 @@ public class StudentService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    @Transactional
     public Student register(RegisterRequest request) {
         String email = request.email().trim().toLowerCase(Locale.ROOT);
 
@@ -32,6 +31,7 @@ public class StudentService {
         }
 
         Student student = new Student();
+        student.setId(UUID.randomUUID().toString());
         student.setFullName(request.fullName().trim());
         student.setEmail(email);
         student.setPassword(passwordEncoder.encode(request.password()));
@@ -42,17 +42,16 @@ public class StudentService {
         student.setCurrentYear(request.currentYear());
         student.setGraduationYear(request.graduationYear());
         student.setSelectedDomain(request.selectedDomain());
+        student.initializeCreatedAt();
 
-        return studentRepository.save(student);
+        return studentRepository.create(student);
     }
 
-    @Transactional(readOnly = true)
     public Student getByEmail(String email) {
         return studentRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalStateException("Authenticated student no longer exists"));
     }
 
-    @Transactional
     public Student updateProfile(String email, UpdateProfileRequest request) {
         Student student = getByEmail(email);
         student.setFullName(request.fullName().trim());
@@ -62,18 +61,16 @@ public class StudentService {
         student.setCurrentYear(request.currentYear());
         student.setGraduationYear(request.graduationYear());
         student.setSelectedDomain(request.selectedDomain());
-        return student;   // saved automatically when the transaction commits
+        return studentRepository.save(student);
     }
 
-    @Transactional(readOnly = true)
     public String getProgress(String email) {
         return getByEmail(email).getProgressJson();
     }
 
-    @Transactional
     public String saveProgress(String email, String progressJson) {
         Student student = getByEmail(email);
         student.setProgressJson(progressJson);
-        return student.getProgressJson();
+        return studentRepository.save(student).getProgressJson();
     }
 }

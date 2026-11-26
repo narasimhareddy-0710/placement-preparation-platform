@@ -1,6 +1,5 @@
 package com.placement.placement_backend.exception;
 
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -27,7 +26,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
-    @ExceptionHandler({EmailAlreadyExistsException.class, DataIntegrityViolationException.class})
+    @ExceptionHandler(EmailAlreadyExistsException.class)
     public ResponseEntity<Map<String, Object>> handleConflict(Exception ex) {
         // DataIntegrityViolationException covers two people registering the same email at the same moment.
         return ResponseEntity.status(HttpStatus.CONFLICT)

@@ -4,7 +4,7 @@ import com.placement.placement_backend.entity.Student;
 
 /** What the API returns about a student. It never contains the password or its hash. */
 public record StudentResponse(
-        Long id,
+        String id,
         String fullName,
         String email,
         String role,
