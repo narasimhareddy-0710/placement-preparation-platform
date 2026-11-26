@@ -26,7 +26,7 @@ public class FirebaseIdentityService {
     private static final String IDENTITY_TOOLKIT = "https://identitytoolkit.googleapis.com/v1/accounts:";
 
     private final String webApiKey;
-    private final ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper = new ObjectMapper();
     private final ObjectProvider<FirebaseAuth> firebaseAuthProvider;
     private final HttpClient httpClient = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(15))
@@ -34,10 +34,8 @@ public class FirebaseIdentityService {
 
     public FirebaseIdentityService(
             @Value("${FIREBASE_WEB_API_KEY:}") String webApiKey,
-            ObjectMapper objectMapper,
             ObjectProvider<FirebaseAuth> firebaseAuthProvider) {
         this.webApiKey = webApiKey;
-        this.objectMapper = objectMapper;
         this.firebaseAuthProvider = firebaseAuthProvider;
     }
 
