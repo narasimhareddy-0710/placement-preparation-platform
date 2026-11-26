@@ -6,10 +6,12 @@ A mobile-friendly placement preparation website for students from second year on
 
 1. Create a Firebase project in the [Firebase Console](https://console.firebase.google.com/).
 2. Open **Build → Firestore Database**, create a **Standard** database, choose its location, and start in **Production mode**. The backend uses the Firebase Admin SDK, so do not open database access to web clients.
-3. In **Project settings → Service accounts**, generate a private key JSON file. Keep this file outside the repository. Never commit or share it.
-4. Copy `.env.example` to `.env` and fill in `FIREBASE_PROJECT_ID`, `FIREBASE_SERVICE_ACCOUNT_FILE` (an absolute path to that JSON file), and a random `JWT_SECRET` of at least 32 characters. `.env` is ignored by Git.
+3. Open **Build → Authentication → Sign-in method** and enable **Email/Password**.
+4. In **Project settings → General**, copy the **Web API Key**. The Firebase Identity Toolkit API uses this key for email/password sign-in and verification emails.
+5. In **Project settings → Service accounts**, generate a private key JSON file. Keep this file outside the repository. Never commit or share it.
+6. Copy `.env.example` to `.env` and fill in `FIREBASE_PROJECT_ID`, `FIREBASE_WEB_API_KEY`, `FIREBASE_SERVICE_ACCOUNT_FILE` (an absolute path to that JSON file), and a random `JWT_SECRET` of at least 32 characters. `.env` is ignored by Git.
 
-The backend reads local credentials through `GOOGLE_APPLICATION_CREDENTIALS` and reads the project ID from `FIREBASE_PROJECT_ID`. On Render, provide the service-account JSON content through the private `FIREBASE_SERVICE_ACCOUNT_JSON` environment variable instead of uploading the key file.
+The backend reads local credentials through `GOOGLE_APPLICATION_CREDENTIALS` and reads the project ID and Web API key from `FIREBASE_PROJECT_ID` and `FIREBASE_WEB_API_KEY`. On Render, provide the service-account JSON content through the private `FIREBASE_SERVICE_ACCOUNT_JSON` environment variable instead of uploading the key file.
 
 ## Run locally
 
@@ -35,7 +37,7 @@ The included Render Blueprint builds the root `Dockerfile` and runs a free Rende
 1. Push this project to your GitHub repository. Do not upload `.env` or any Firebase service-account key.
 2. In Render, create a Blueprint from the repository so Render reads `render.yaml`, or create a Docker Web Service using the root `Dockerfile`.
 3. Choose the **Free** service plan.
-4. Add `FIREBASE_PROJECT_ID` and `FIREBASE_SERVICE_ACCOUNT_JSON` in the Render service's environment settings. Paste the full JSON key contents into the secret value field. Add a strong `JWT_SECRET` (at least 32 characters). Do not put these secrets in GitHub.
+4. Add `FIREBASE_PROJECT_ID`, `FIREBASE_WEB_API_KEY`, and `FIREBASE_SERVICE_ACCOUNT_JSON` in the Render service's environment settings. Paste the full JSON key contents into the secret value field. Add a strong `JWT_SECRET` (at least 32 characters). Do not put the service-account JSON or JWT secret in GitHub.
 5. Deploy. When Render reports the service is live, open its `onrender.com` address in Chrome on a computer or phone.
 
 The hosted Firestore database starts empty. Existing student rows in a local MySQL database are not automatically copied; students will need to register again unless you perform a separate data migration.

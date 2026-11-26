@@ -6,7 +6,6 @@ import com.placement.placement_backend.entity.Role;
 import com.placement.placement_backend.entity.Student;
 import com.placement.placement_backend.exception.EmailAlreadyExistsException;
 import com.placement.placement_backend.repository.StudentRepository;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Locale;
@@ -16,27 +15,21 @@ import java.util.UUID;
 public class StudentService {
 
     private final StudentRepository studentRepository;
-    private final PasswordEncoder passwordEncoder;
-
-    public StudentService(StudentRepository studentRepository, PasswordEncoder passwordEncoder) {
+    public StudentService(StudentRepository studentRepository) {
         this.studentRepository = studentRepository;
-        this.passwordEncoder = passwordEncoder;
     }
 
     public Student register(RegisterRequest request) {
         String email = request.email().trim().toLowerCase(Locale.ROOT);
 
-        if (studentRepository.existsByEmail(email)) {
-            throw new EmailAlreadyExistsException();
-        }
+        assertEmailAvailable(email);
 
         Student student = new Student();
         student.setId(UUID.randomUUID().toString());
         student.setFullName(request.fullName().trim());
         student.setEmail(email);
-        student.setPassword(passwordEncoder.encode(request.password()));
         student.setRole(Role.STUDENT);   // the client can never choose its own role
-        student.setPhone(request.phone());
+        student.setPhone(normalizePhone(request.phone()));
         student.setCollege(request.college());
         student.setBranch(request.branch());
         student.setCurrentYear(request.currentYear());
@@ -47,6 +40,21 @@ public class StudentService {
         return studentRepository.create(student);
     }
 
+    public void assertEmailAvailable(String email) {
+        if (studentRepository.existsByEmail(email.trim().toLowerCase(Locale.ROOT))) {
+            throw new EmailAlreadyExistsException();
+        }
+    }
+
+    public void deleteByEmail(String email) {
+        studentRepository.deleteByEmail(email);
+    }
+
+    private String normalizePhone(String phone) {
+        String normalized = phone.trim().replaceAll("[\\s()-]", "");
+        return normalized.startsWith("+91") ? normalized : "+91" + normalized;
+    }
+
     public Student getByEmail(String email) {
         return studentRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalStateException("Authenticated student no longer exists"));
@@ -55,7 +63,7 @@ public class StudentService {
     public Student updateProfile(String email, UpdateProfileRequest request) {
         Student student = getByEmail(email);
         student.setFullName(request.fullName().trim());
-        student.setPhone(request.phone());
+        student.setPhone(normalizePhone(request.phone()));
         student.setCollege(request.college());
         student.setBranch(request.branch());
         student.setCurrentYear(request.currentYear());

@@ -27,7 +27,9 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         return User.withUsername(student.getEmail())
-                .password(student.getPassword())
+                // Password verification is handled by Firebase Authentication at login.
+                // This principal is used only to attach authorities to our own JWT requests.
+                .password("")
                 .roles(student.getRole().name())   // becomes ROLE_STUDENT / ROLE_ADMIN
                 .build();
     }

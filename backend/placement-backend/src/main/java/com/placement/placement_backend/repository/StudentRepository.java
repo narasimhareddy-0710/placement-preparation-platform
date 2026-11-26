@@ -35,6 +35,12 @@ public class StudentRepository {
         return getDocument(email).exists();
     }
 
+    /** Reads a password hash from accounts created before Firebase Authentication was enabled. */
+    public Optional<String> findLegacyPasswordHash(String email) {
+        String hash = getDocument(email).getString("password");
+        return Optional.ofNullable(hash).filter(value -> !value.isBlank());
+    }
+
     /** Creates the document only if its key is unused, so concurrent duplicate registrations cannot overwrite it. */
     public Student create(Student student) {
         DocumentReference reference = documentFor(student.getEmail());
@@ -59,6 +65,17 @@ public class StudentRepository {
             throw new IllegalStateException("Interrupted while saving student to Firestore", ex);
         } catch (ExecutionException ex) {
             throw new IllegalStateException("Could not save student to Firestore", ex.getCause());
+        }
+    }
+
+    public void deleteByEmail(String email) {
+        try {
+            documentFor(email).delete().get();
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("Interrupted while removing student from Firestore", ex);
+        } catch (ExecutionException ex) {
+            throw new IllegalStateException("Could not remove student from Firestore", ex.getCause());
         }
     }
 

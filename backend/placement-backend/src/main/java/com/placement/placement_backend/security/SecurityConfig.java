@@ -51,6 +51,7 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
+        // Used only to validate legacy Firestore accounts while migrating them to Firebase Auth.
         return new BCryptPasswordEncoder();
     }
 
